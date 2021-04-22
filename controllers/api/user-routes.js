@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { User, Post, Vote, Comment } = require('../../models');
+const withAuth = require('../../utils/auth');
 
 // Get /api/users
 router.get('/', (req, res) => {
@@ -56,7 +57,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Post /api/users
-router.post('/', (req, res) => {
+router.post('/', withAuth, (req, res) => {
     User.create({
         username: req.body.username,
         email: req.body.email,
@@ -92,7 +93,6 @@ router.post('/login', (req, res) => {
             res.status(400).json({ message: 'Incorrect password!' });
             return;
         }
-
         req.session.save(() => {
             // declare session variables
             req.session.user_id = dbUserData.id;
@@ -105,7 +105,7 @@ router.post('/login', (req, res) => {
 });
 
 // Log Out Route
-router.post('/logout', (req, res) => {
+router.post('/logout', withAuth, (req, res) => {
     if (req.session.loggedIn) {
         req.session.destroy(() => {
             res.status(204).end();
@@ -117,7 +117,7 @@ router.post('/logout', (req, res) => {
 });
 
 // Put /api/users/1
-router.put('/:id', (req, res) => {
+router.put('/:id', withAuth, (req, res) => {
     User.update(req.body, {
         individualHooks: true,
         where: {
@@ -138,7 +138,7 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete /api/users/1
-router.delete('/:id', (req, res) => {
+router.delete('/:id', withAuth, (req, res) => {
     User.destroy({
         where: {
             id: req.params.id
